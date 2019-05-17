@@ -1,0 +1,21 @@
+import { Component, Input } from '@angular/core';
+
+import { LicenseService } from '../api/license.service';
+import { Observable } from 'rxjs';
+
+@Component({
+  selector: 'itcorpo-license',
+  template: `<h2>license</h2><pre>{{ content$ | async }}</pre>`,
+  styleUrls: ['./license.component.css']
+})
+export class LicenseComponent {
+  content$: Observable<string>;
+
+  constructor(
+    private licenseSvc: LicenseService
+  ){}
+
+  ngOnInit(): void {
+    this.content$ = this.licenseSvc.get()
+  }
+}
