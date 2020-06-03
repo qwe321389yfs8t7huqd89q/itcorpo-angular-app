@@ -13,6 +13,11 @@ export type EmployeeCriteria = {
   office_like?: string // for either cities or countries
 }
 
+type Chunk = {
+  data: Employee[]
+  pageIdx: number
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -58,14 +63,26 @@ export class EmployeesService {
     return this.http.get<number>(`${apiURL}/employees/count${query}`)
   }
 
+
+  // type Chunk = { data: Employee[], pageIdx: number }
   getAllEmployees(criteria: EmployeeCriteria = {}): Observable<Employee[]> {
     return this.getCount(criteria).pipe(
       map(itemsCount => Math.ceil(itemsCount / MAX_PAGE_SIZE)),
       flatMap(pageCount => range(1, pageCount)),
-      mergeMap(pageIdx => this.getPage(criteria, pageIdx)),
-      scan( (allEmployees, employeePage) => allEmployees.concat(employeePage), [] as Employee[] ),
+      mergeMap(pageIdx => this.getPage(criteria, pageIdx).pipe(
+        map(data => ({ data, pageIdx })),
+      )),
+      scan( (allChunks, chunk: Chunk) => allChunks.concat(chunk), [] as Chunk[] ),
+      // scan( (allEmployees, employeePage) => allEmployees.concat(employeePage), [] as Employee[] ),
       // scan( (allEmployees, employeePage) => [...allEmployees, ...employeePage], [] as Employee[] ),
+      map(chunks => chunks
+        .sort((c1, c2) => c1.pageIdx - c2.pageIdx)
+        //   [ {idx:5, data:[A, B, C]}, {idx:13, data:[D, E, F]} ]
+        // .map(chunk => chunk.data)
+        // //   [ [A, B, C], [D, E, F] ]
+        // .flat()
+        .flatMap(chunk => chunk.data)
+      )
     )
-    // return this.getPage(criteria)
   }
 }
