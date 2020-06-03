@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { apiURL } from './config';
+import { apiURL, MAX_PAGE_SIZE } from './config';
 import { applyQueryString } from './queryString';
 
 import { Employee, Nationality } from 'src/app/typedef';
+import { Observable, range } from 'rxjs';
+import { map, flatMap, concatMap, scan, mergeMap } from 'rxjs/operators';
 
 export type EmployeeCriteria = {
   nationality?: Nationality
@@ -36,12 +38,19 @@ export class EmployeesService {
     return this.http.get<Employee[]>(`${apiURL}/employees${query}`)
   }
 
-  getCount(criteria: EmployeeCriteria = {}) {
+  private getCount(criteria: EmployeeCriteria = {}) {
     const query = applyQueryString(criteria)
     return this.http.get<number>(`${apiURL}/employees/count${query}`)
   }
 
-  getAllEmployees(criteria: EmployeeCriteria = {}) {
-    return this.getPage(criteria)
+  getAllEmployees(criteria: EmployeeCriteria = {}): Observable<Employee[]> {
+    return this.getCount(criteria).pipe(
+      map(itemsCount => Math.ceil(itemsCount / MAX_PAGE_SIZE)),
+      flatMap(pageCount => range(1, pageCount)),
+      mergeMap(pageIdx => this.getPage(criteria, pageIdx)),
+      scan( (allEmployees, employeePage) => allEmployees.concat(employeePage), [] as Employee[] ),
+      // scan( (allEmployees, employeePage) => [...allEmployees, ...employeePage], [] ),
+    )
+    // return this.getPage(criteria)
   }
 }

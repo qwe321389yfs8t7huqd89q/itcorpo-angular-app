@@ -11,13 +11,13 @@ import { Component, OnInit } from '@angular/core';
 export class FadeboxComponent implements OnInit {
 
   public fadeIn = true
-  public fadeOut = false
+  public fadeOut = true
 
   constructor() {}
 
   ngOnInit() {
     // setInterval(() => this.fadeIn = !this.fadeIn, 3000)
-    setInterval(() => this.fadeOut = !this.fadeOut, 3000)
+    // setInterval(() => this.fadeOut = !this.fadeOut, 3000)
   }
 
 }

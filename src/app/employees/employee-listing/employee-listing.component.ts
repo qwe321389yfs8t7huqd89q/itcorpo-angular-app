@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Observable } from 'rxjs';
+import { share, shareReplay } from 'rxjs/operators';
 
 import { Employee } from 'src/app/typedef';
 
@@ -26,7 +27,10 @@ export class EmployeeListingComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.employees$ = this.employeeSvc.getAllEmployees()
+    this.employees$ = this.employeeSvc.getAllEmployees().pipe(
+      // shareReplay()
+      // share()
+    )
     // this.employees$ = this.employeeSvc.getAllEmployees({ nationality: "PL" })
     // this.employees$ = this.employeeSvc.getAllEmployees({ office_like: "Poland" })
     // this.employees$ = this.employeeSvc.getAllEmployees({ office_like: "Łódź" })

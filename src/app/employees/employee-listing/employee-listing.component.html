@@ -7,7 +7,12 @@
 
 <h2>Employees</h2>
 
+<!-- <itcorpo-loader></itcorpo-loader> -->
+
 city: <itcorpo-dropdown [options]="cities"></itcorpo-dropdown>
+<!-- 
+count: {{ (employees$ | async).length }}
+count: {{ (employees$ | async).length }} -->
 
 <div *ngIf="employees$ | async as employees">
   count: {{ employees.length }}
