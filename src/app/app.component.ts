@@ -22,7 +22,7 @@ export class AppComponent {
     this.geoData$ = this.geoSvc.getGeo()
   }
 
-  updateCountry(event: Event){
-    console.log((event.target as HTMLSelectElement).value)
+  updateCountry(countryCode: string){
+    console.log(countryCode)
   }
 }
