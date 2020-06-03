@@ -38,7 +38,7 @@ export class EmployeesService {
     return this.http.get<Employee[]>(`${apiURL}/employees${query}`)
   }
 
-  getFirstPage(criteria: EmployeeCriteria = {}, pageSize = 50){
+  private getFirstPage(criteria: EmployeeCriteria = {}, pageSize = 50){
     const query = applyQueryString({ ...criteria, 
       _limit: pageSize,
       _page: 1
@@ -64,7 +64,7 @@ export class EmployeesService {
       flatMap(pageCount => range(1, pageCount)),
       mergeMap(pageIdx => this.getPage(criteria, pageIdx)),
       scan( (allEmployees, employeePage) => allEmployees.concat(employeePage), [] as Employee[] ),
-      // scan( (allEmployees, employeePage) => [...allEmployees, ...employeePage], [] ),
+      // scan( (allEmployees, employeePage) => [...allEmployees, ...employeePage], [] as Employee[] ),
     )
     // return this.getPage(criteria)
   }
