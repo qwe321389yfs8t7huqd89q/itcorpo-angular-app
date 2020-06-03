@@ -39,7 +39,7 @@ export class EmployeesService {
   }
 
   private getCount(criteria: EmployeeCriteria = {}) {
-    const query = applyQueryString(criteria)
+    const query = applyQueryString(criteria as any)
     return this.http.get<number>(`${apiURL}/employees/count${query}`)
   }
 
