@@ -21,4 +21,8 @@ export class AppComponent {
   ngOnInit(): void {
     this.geoData$ = this.geoSvc.getGeo()
   }
+
+  updateCountry(event: Event){
+    console.log((event.target as HTMLSelectElement).value)
+  }
 }

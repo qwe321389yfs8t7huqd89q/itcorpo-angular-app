@@ -5,7 +5,7 @@ import { apiURL, MAX_PAGE_SIZE } from './config';
 import { applyQueryString } from './queryString';
 
 import { Employee, Nationality } from 'src/app/typedef';
-import { Observable, range, merge, of } from 'rxjs';
+import { Observable, range, merge, of, pipe } from 'rxjs';
 import { map, flatMap, concatMap, scan, mergeMap } from 'rxjs/operators';
 
 export type EmployeeCriteria = {
@@ -17,6 +17,13 @@ type Chunk = {
   data: Employee[]
   pageIdx: number
 }
+
+// custom operators:
+// const mergePagesWithIndexes = pipe(
+//   mergeMap(pageIdx => this.getPage(criteria, pageIdx).pipe(
+//     map(data => ({ data, pageIdx })),
+//   )),
+// )
 
 @Injectable({
   providedIn: 'root'
@@ -63,12 +70,7 @@ export class EmployeesService {
     return this.http.get<number>(`${apiURL}/employees/count${query}`)
   }
 
-  private getAllPagesChunks(criteria: EmployeeCriteria = {}) {
-    
-  }
-
-  // type Chunk = { data: Employee[], pageIdx: number }
-  getAllEmployees(criteria: EmployeeCriteria = {}): Observable<Employee[]> {
+  private getAllPagesChunks(criteria: EmployeeCriteria = {}): Observable<Chunk> {
     return this.getFirstPage(criteria).pipe(
       flatMap(({ totalCount, data: firstPageData }) => {
         const pageCount = Math.ceil(totalCount / MAX_PAGE_SIZE)
@@ -81,7 +83,13 @@ export class EmployeesService {
             )),
           )
         )
-      }),
+      })
+    )
+  }
+
+  // type Chunk = { data: Employee[], pageIdx: number }
+  getAllEmployees(criteria: EmployeeCriteria = {}): Observable<Employee[]> {
+    return this.getAllPagesChunks(criteria).pipe(
       scan( (allChunks, chunk: Chunk) => allChunks.concat(chunk), [] as Chunk[] ),
       // scan( (allEmployees, employeePage) => allEmployees.concat(employeePage), [] as Employee[] ),
       // scan( (allEmployees, employeePage) => [...allEmployees, ...employeePage], [] as Employee[] ),
