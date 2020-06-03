@@ -38,6 +38,21 @@ export class EmployeesService {
     return this.http.get<Employee[]>(`${apiURL}/employees${query}`)
   }
 
+  getFirstPage(criteria: EmployeeCriteria = {}, pageSize = 50){
+    const query = applyQueryString({ ...criteria, 
+      _limit: pageSize,
+      _page: 1
+    })
+    return this.http.get<Employee[]>(`${apiURL}/employees${query}`, {
+      observe: 'response'
+    }).pipe(
+      map(resp => ({
+        totalCount: parseInt(resp.headers.get('X-Total-Count')),
+        data : resp.body,
+      }))
+    )
+  }
+
   private getCount(criteria: EmployeeCriteria = {}) {
     const query = applyQueryString(criteria as any)
     return this.http.get<number>(`${apiURL}/employees/count${query}`)
